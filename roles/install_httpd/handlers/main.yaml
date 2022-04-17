@@ -1,0 +1,5 @@
+- name: restart server
+  service: name=nginx state=restarted
+- name: check nginx 
+  shell: ps -ef |grep ^nginx | grep -v grep
+  

@@ -1,0 +1,145 @@
+# 1. 更新logstash.yml 文件并推送到集群中
+# 2. 重启logstash服务
+# YAML 还有一个怪癖. 所有的 YAML 文件(无论和 Ansible 有没有关系)开始行都应该是 ---. 这是 YAML 格式的一部分, 表明一个文件的开始.
+# Ansible 使用 “{{ var }}” 来引用变量，foo: "{{ variable }}"
+---
+- name: deploy cron copy file execute command
+  remote_user: root
+  hosts: test
+  tasks:
+    - name: ping
+      ping:
+        data: pong # not required. Data to return for the C(ping) return value. If this parameter is set to C(crash), the module will cause an exception.
+    
+    - name: 
+      service:
+        name:  # required. Name of the service.
+        state: reloaded # not required. choices: reloaded;restarted;started;stopped. C(started)/C(stopped) are idempotent actions that will not run commands unless necessary. C(restarted) will always bounce the service. C(reloaded) will always reload. B(At least one of state and enabled are required.) Note that reloaded will start the service if it is not already started, even if your chosen init system wouldn't normally.
+        sleep:  # not required. If the service is being C(restarted) then sleep this many seconds between the stop and start command. This helps to work around badly-behaving init scripts that exit immediately after signaling a process to stop. Not all service managers support sleep, i.e when using systemd this setting will be ignored.
+        pattern:  # not required. If the service does not respond to the status command, name a substring to look for as would be found in the output of the I(ps) command as a stand-in for a status result. If the string is found, the service will be assumed to be started.
+        enabled:  # not required. Whether the service should start on boot. B(At least one of state and enabled are required.)
+        runlevel: default # not required. For OpenRC init scripts (e.g. Gentoo) only. The runlevel that this service belongs to.
+        arguments:  # not required. Additional arguments provided on the command line.
+        use: auto # not required. The service module actually uses system specific modules, normally through auto detection, this setting can force a specific module. Normally it uses the value of the 'ansible_service_mgr' fact and falls back to the old 'service' module when none matching is found.
+    
+    - name: script
+      script:
+        free_form:  # not required. Path to the local script file followed by optional arguments.
+        cmd:  # not required. Path to the local script to run followed by optional arguments.
+        creates:  # not required. A filename on the remote node, when it already exists, this step will B(not) be run.
+        removes:  # not required. A filename on the remote node, when it does not exist, this step will B(not) be run.
+        chdir:  # not required. Change into this directory on the remote node before running the script.
+        executable:  # not required. Name or path of a executable to invoke the script with.
+        decrypt: True # not required. This option controls the autodecryption of source files using vault.
+
+    - name: copy properties
+      cron:
+        name:  # not required. Description of a crontab entry or, if env is set, the name of environment variable. Required if C(state=absent). Note that if name is not set and C(state=present), then a new crontab entry will always be created, regardless of existing ones. This parameter will always be required in future releases.
+        user:  # not required. The specific user whose crontab should be modified. When unset, this parameter defaults to using C(root).
+        job:  # not required. The command to execute or, if env is set, the value of environment variable. The command should not contain line breaks. Required if C(state=present).
+        state: absent # not required. choices: absent;present. Whether to ensure the job or environment variable is present or absent.
+        cron_file:  # not required. If specified, uses this file instead of an individual user's crontab. If this is a relative path, it is interpreted with respect to I(/etc/cron.d). If it is absolute, it will typically be I(/etc/crontab). Many linux distros expect (and some require) the filename portion to consist solely of upper- and lower-case letters, digits, underscores, and hyphens. To use the C(cron_file) parameter you must specify the C(user) as well.
+        backup: False # not required. If set, create a backup of the crontab before it is modified. The location of the backup is returned in the C(backup_file) variable by this module.
+        minute: * # not required. Minute when the job should run ( 0-59, *, */2, etc )
+        hour: * # not required. Hour when the job should run ( 0-23, *, */2, etc )
+        day: * # not required. Day of the month the job should run ( 1-31, *, */2, etc )
+        month: * # not required. Month of the year the job should run ( 1-12, *, */2, etc )
+        weekday: * # not required. Day of the week that the job should run ( 0-6 for Sunday-Saturday, *, etc )
+        reboot: False # not required. If the job should be run at reboot. This option is deprecated. Users should use special_time.
+        special_time: annually # not required. choices: annually;daily;hourly;monthly;reboot;weekly;yearly. Special time specification nickname.
+        disabled: False # not required. If the job should be disabled (commented out) in the crontab. Only has effect if C(state=present).
+        env: False # not required. If set, manages a crontab's environment variable. New variables are added on top of crontab. C(name) and C(value) parameters are the name and the value of environment variable.
+        insertafter:  # not required. Used with C(state=present) and C(env). If specified, the environment variable will be inserted after the declaration of specified environment variable.
+        insertbefore:  # not required. Used with C(state=present) and C(env). If specified, the environment variable will be inserted before the declaration of specified environment variable.: 
+    
+    - name: copy properties
+      yum:
+        use_backend: yum4 # not required. choices: auto;yum;yum4;dnf. This module supports C(yum) (as it always has), this is known as C(yum3)/C(YUM3)/C(yum-deprecated) by upstream yum developers. As of Ansible 2.7+, this module also supports C(YUM4), which is the "new yum" and it has an C(dnf) backend. By default, this module will select the backend based on the C(ansible_pkg_mgr) fact.
+        name:  # not required. A package name or package specifier with version, like C(name-1.0). If a previous version is specified, the task also needs to turn C(allow_downgrade) on. See the C(allow_downgrade) documentation for caveats with downgrading packages. When using state=latest, this can be C('*') which means run C(yum -y update). You can also pass a url or a local path to a rpm file (using state=present). To operate on several packages this can accept a comma separated string of packages or (as of 2.0) a list of packages.
+        exclude:  # not required. Package name(s) to exclude when state=present, or latest
+        list:  # not required. Package name to run the equivalent of yum list --show-duplicates <package> against. In addition to listing packages, use can also list the following: C(installed), C(updates), C(available) and C(repos). This parameter is mutually exclusive with C(name).
+        state: absent # not required. choices: absent;installed;latest;present;removed. Whether to install (C(present) or C(installed), C(latest)), or remove (C(absent) or C(removed)) a package. C(present) and C(installed) will simply ensure that a desired package is installed. C(latest) will update the specified package if it's not of the latest available version. C(absent) and C(removed) will remove the specified package. Default is C(None), however in effect the default action is C(present) unless the C(autoremove) option is enabled for this module, then C(absent) is inferred.
+        enablerepo:  # not required. I(Repoid) of repositories to enable for the install/update operation. These repos will not persist beyond the transaction. When specifying multiple repos, separate them with a C(","). As of Ansible 2.7, this can alternatively be a list instead of C(",") separated string
+        disablerepo:  # not required. I(Repoid) of repositories to disable for the install/update operation. These repos will not persist beyond the transaction. When specifying multiple repos, separate them with a C(","). As of Ansible 2.7, this can alternatively be a list instead of C(",") separated string
+        conf_file:  # not required. The remote yum configuration file to use for the transaction.
+        disable_gpg_check: no # not required. Whether to disable the GPG checking of signatures of packages being installed. Has an effect only if state is I(present) or I(latest).
+        skip_broken: no # not required. Skip packages with broken dependencies(devsolve) and are causing problems.
+        update_cache: no # not required. Force yum to check if cache is out of date and redownload if needed. Has an effect only if state is I(present) or I(latest).
+        validate_certs: yes # not required. This only applies if using a https url as the source of the rpm. e.g. for localinstall. If set to C(no), the SSL certificates will not be validated. This should only set to C(no) used on personally controlled sites using self-signed certificates as it avoids verifying the source site. Prior to 2.1 the code worked as if this was set to C(yes).
+        update_only: no # not required. When using latest, only update installed packages. Do not install packages. Has an effect only if state is I(latest)
+        installroot: / # not required. Specifies an alternative installroot, relative to which all packages will be installed.
+        security: no # not required. If set to C(yes), and C(state=latest) then only installs updates that have been marked security related.
+        bugfix: no # not required. If set to C(yes), and C(state=latest) then only installs updates that have been marked bugfix related.
+        allow_downgrade: no # not required. Specify if the named package and version is allowed to downgrade a maybe already installed higher version of that package. Note that setting allow_downgrade=True can make this module behave in a non-idempotent way. The task could end up with a set of packages that does not match the complete list of specified packages to install (because dependencies between the downgraded package and others can cause changes to the packages which were in the earlier transaction).
+        enable_plugin:  # not required. I(Plugin) name to enable for the install/update operation. The enabled plugin will not persist beyond the transaction.
+        disable_plugin:  # not required. I(Plugin) name to disable for the install/update operation. The disabled plugins will not persist beyond the transaction.
+        releasever:  # not required. Specifies an alternative release from which all packages will be installed.
+        autoremove: no # not required. If C(yes), removes all "leaf" packages from the system that were originally installed as dependencies of user-installed packages but which are no longer required by any such package. Should be used alone or when state is I(absent) NOTE: This feature requires yum >= 3.4.3 (RHEL/CentOS 7+)
+        disable_excludes:  # not required. Disable the excludes defined in YUM config files. If set to C(all), disables all excludes. If set to C(main), disable excludes defined in [main] in yum.conf. If set to C(repoid), disable excludes defined for given repo id.
+        download_only: no # not required. Only download the packages, do not install them.
+        lock_timeout: 30 # not required. Amount of time to wait for the yum lockfile to be freed.
+        install_weak_deps: yes # not required. Will also install all packages linked by a weak dependency relation. NOTE: This feature requires yum >= 4 (RHEL/CentOS 8+)
+        download_dir:  # not required. Specifies an alternate directory to store packages. Has an effect only if I(download_only) is specified.
+
+    - name: #直接跟命令
+      command: ll
+      ignore_errors: True
+   
+    - name: #直接跟命令
+      shell: ll
+      ignore_errors: True
+
+    - name: copy properties
+      copy:
+        dest:  # required. Remote absolute path where the file should be copied to. If C(src) is a directory, this must be a directory too. If C(dest) is a non-existent path and if either C(dest) ends with "/" or C(src) is a directory, C(dest) is created. If I(dest) is a relative path, the starting directory is determined by the remote host. If C(src) and C(dest) are files, the parent directory of C(dest) is not created and the task fails if it does not already exist.
+        src:  # not required. Local path to a file to copy to the remote server. This can be absolute or relative. If path is a directory, it is copied recursively. In this case, if path ends with "/", only inside contents of that directory are copied to destination. Otherwise, if it does not end with "/", the directory itself with all contents is copied. This behavior is similar to the C(rsync) command line tool.
+        content:  # not required. When used instead of C(src), sets the contents of a file directly to the specified value. Works only when C(dest) is a file. Creates the file if it does not exist. For advanced formatting or if C(content) contains a variable, use the M(template) module.
+        backup: False # not required. Create a backup file including the timestamp information so you can get the original file back if you somehow clobbered it incorrectly.
+        force: True # not required. Influence whether the remote file must always be replaced. If C(yes), the remote file will be replaced when contents are different than the source. If C(no), the file will only be transferred if the destination does not exist. Alias C(thirsty) has been deprecated and will be removed in 2.13.
+        mode:  # not required. The permissions of the destination file or directory. For those used to C(/usr/bin/chmod) remember that modes are actually octal numbers. You must either add a leading zero so that Ansible's YAML parser knows it is an octal number (like C(0644) or C(01777))or quote it (like C('644') or C('1777')) so Ansible receives a string and can do its own conversion from string into number. Giving Ansible a number without following one of these rules will end up with a decimal number which will have unexpected results. As of Ansible 1.8, the mode may be specified as a symbolic mode (for example, C(u+rwx) or C(u=rw,g=r,o=r)). As of Ansible 2.3, the mode may also be the special string C(preserve). C(preserve) means that the file will be given the same permissions as the source file.
+        directory_mode:  # not required. When doing a recursive copy set the mode for the directories. If this is not set we will use the system defaults. The mode is only set on directories which are newly created, and will not affect those that already existed.
+        remote_src: False # not required. Influence whether C(src) needs to be transferred or already is present remotely. If C(no), it will search for C(src) at originating/master machine. If C(yes) it will go to the remote/target machine for the C(src). C(remote_src) supports recursive copying as of version 2.8. C(remote_src) only works with C(mode=preserve) as of version 2.6.
+        follow: False # not required. This flag indicates that filesystem links in the destination, if they exist, should be followed.
+        local_follow: True # not required. This flag indicates that filesystem links in the source tree, if they exist, should be followed.
+        checksum:  # not required. SHA1 checksum of the file being transferred. Used to validate that the copy of the file was successful. If this is not provided, ansible will use the local calculated checksum of the src file.
+        decrypt: True # not required. This option controls the autodecryption of source files using vault.
+        owner:  # not required. Name of the user that should own the file/directory, as would be fed to I(chown).
+        group:  # not required. Name of the group that should own the file/directory, as would be fed to I(chown).
+        seuser:  # not required. The user part of the SELinux file context. By default it uses the C(system) policy, where applicable. When set to C(_default), it will use the C(user) portion of the policy if available.
+        serole:  # not required. The role part of the SELinux file context. When set to C(_default), it will use the C(role) portion of the policy if available.
+        setype:  # not required. The type part of the SELinux file context. When set to C(_default), it will use the C(type) portion of the policy if available.
+        selevel: s0 # not required. The level part of the SELinux file context. This is the MLS/MCS attribute, sometimes known as the C(range). When set to C(_default), it will use the C(level) portion of the policy if available.
+        unsafe_writes: False # not required. Influence when to use atomic operation to prevent data corruption or inconsistent reads from the target file. By default this module uses atomic operations to prevent data corruption or inconsistent reads from the target files, but sometimes systems are configured or just broken in ways that prevent this. One example is docker mounted files, which cannot be updated atomically from inside the container and can only be written in an unsafe manner. This option allows Ansible to fall back to unsafe methods of updating files when atomic operations fail (however, it doesn't force Ansible to perform unsafe writes). IMPORTANT! Unsafe writes are subject to race conditions and can lead to data corruption.
+        attributes:  # not required. The attributes the resulting file or directory should have. To get supported flags look at the man page for I(chattr) on the target system. This string should contain the attributes in the same order as the one displayed by I(lsattr). The C(=) operator is assumed as default, otherwise C(+) or C(-) operators need to be included in the string.
+        validate:  # not required. The validation command to run before copying into place. The path to the file to validate is passed in via '%s' which must be present as in the examples below. The command is passed securely so shell features like expansion and pipes will not work.
+    
+    - name: 
+      script:
+        free_form:  # not required. Path to the local script file followed by optional arguments.
+        cmd:  # not required. Path to the local script to run followed by optional arguments.
+        creates:  # not required. A filename on the remote node, when it already exists, this step will B(not) be run.
+        removes:  # not required. A filename on the remote node, when it does not exist, this step will B(not) be run.
+        chdir:  # not required. Change into this directory on the remote node before running the script.
+        executable:  # not required. Name or path of a executable to invoke the script with.
+        decrypt: True # not required. This option controls the autodecryption of source files using vault.
+      notify: #事件
+        - restart server
+  
+  handlers:
+    - name: restart server
+      service: name=docker state=restarted
+
+    #拷贝配置文件到远程服务器
+    #- name: 推送配置文件
+    #  copy:
+    #    src: logstash.yml
+    #    dest: /root/logstash/logstash-6.4.3/config
+    #    owner: root
+    #    backup: yes
+    #执行重启命令
+    #- name: 重启logstash
+    #  systemd:
+    #    name: logstash
+    #    state: restarted
+
+  

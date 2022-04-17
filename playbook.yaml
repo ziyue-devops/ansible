@@ -1,0 +1,4 @@
+---
+- hosts: test 
+  roles:
+    - install_httpd
