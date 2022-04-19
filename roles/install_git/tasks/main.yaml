@@ -4,14 +4,14 @@
     
 - name: yum 
   yum:
-    name: nginx # not required. A package name or package specifier with version, like C(name-1.0). If a previous version is specified, the task also needs to turn C(allow_downgrade) on. See the C(allow_downgrade) documentation for caveats with downgrading packages. When using state=latest, this can be C('*') which means run C(yum -y update). You can also pass a url or a local path to a rpm file (using state=present). To operate on several packages this can accept a comma separated string of packages or (as of 2.0) a list of packages.
+    name: git # not required. A package name or package specifier with version, like C(name-1.0). If a previous version is specified, the task also needs to turn C(allow_downgrade) on. See the C(allow_downgrade) documentation for caveats with downgrading packages. When using state=latest, this can be C('*') which means run C(yum -y update). You can also pass a url or a local path to a rpm file (using state=present). To operate on several packages this can accept a comma separated string of packages or (as of 2.0) a list of packages.
     state: present # not required. choices: absent;installed;latest;present;removed. Whether to install (C(present) or C(installed), C(latest)), or remove (C(absent) or C(removed)) a package. C(present) and C(installed) will simply ensure that a desired package is installed. C(latest) will update the specified package if it's not of the latest available version. C(absent) and C(removed) will remove the specified package. Default is C(None), however in effect the default action is C(present) unless the C(autoremove) option is enabled for this module, then C(absent) is inferred.
 
 - name: copy config file
   copy: 
-    dest: /etc/nginx/ # required. Remote absolute path where the file should be copied to. If C(src) is a directory, this must be a directory too. If C(dest) is a non-existent path and if either C(dest) ends with "/" or C(src) is a directory, C(dest) is created. If I(dest) is a relative path, the starting directory is determined by the remote host. If C(src) and C(dest) are files, the parent directory of C(dest) is not created and the task fails if it does not already exist.
+    dest: /etc/git/ # required. Remote absolute path where the file should be copied to. If C(src) is a directory, this must be a directory too. If C(dest) is a non-existent path and if either C(dest) ends with "/" or C(src) is a directory, C(dest) is created. If I(dest) is a relative path, the starting directory is determined by the remote host. If C(src) and C(dest) are files, the parent directory of C(dest) is not created and the task fails if it does not already exist.
     src: config_backup.txt # not required. Local path to a file to copy to the remote server. This can be absolute or relative. If path is a directory, it is copied recursively. In this case, if path ends with "/", only inside contents of that directory are copied to destination. Otherwise, if it does not end with "/", the directory itself with all contents is copied. This behavior is similar to the C(rsync) command line tool.
 
   notify: #事件
     - restart server
-    - check nginx
+    - check git
