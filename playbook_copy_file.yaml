@@ -1,0 +1,29 @@
+#用来演示的playbook脚本
+---
+- name: copy file 2 remote server
+  remote_user: root
+  hosts: test
+  tasks:
+  # ping服务器
+    - name: ping server
+      ping:
+        data: pong 
+  # 在远程服务器创建目录
+    - name: create dir 
+      file:
+        path: /etc/ansible/demo
+        state: directory
+        mode: '0755'
+  # 远程服务器创建文件
+    - name: create file 
+      file:
+        path: /etc/ansible/demo/foo.conf
+        state: touch
+        mode: u=rw,g=r,o=r
+  
+  #复制文件到远程服务器      
+    - name: copy file
+      copy:
+        src: /etc/ansible/demo/foo2.conf      
+        dest: /etc/ansible/demo/
+        mode: '0600'
