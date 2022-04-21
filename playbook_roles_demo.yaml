@@ -1,4 +1,5 @@
 ---
 - hosts: test 
+  remote_user: root
   roles:
-    - install_git
+    - copy_file

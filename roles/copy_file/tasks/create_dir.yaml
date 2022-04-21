@@ -1,0 +1,6 @@
+# 在远程服务器创建目录
+- name: create dir 
+  file:
+    path: /etc/ansible/demo
+    state: directory
+    mode: '0755'

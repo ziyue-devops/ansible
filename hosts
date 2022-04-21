@@ -1,0 +1,5 @@
+[test]
+47.101.203.61 ansible_user=root
+
+[local]
+127.0.0.1

@@ -1,0 +1,8 @@
+#ping服务器
+- name: ping server
+  ping:
+    data: pong 
+
+- include_tasks: create_dir.yaml
+- include_tasks: create_file.yaml
+- include_tasks: copy_file.yaml
