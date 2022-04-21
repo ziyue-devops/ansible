@@ -20,10 +20,3 @@
         path: /etc/ansible/demo/foo.conf
         state: touch
         mode: u=rw,g=r,o=r
-  
-  #复制文件到远程服务器      
-    - name: copy file
-      copy:
-        src: foo2.conf
-        dest: /etc/ansible/demo/
-        mode: '0600'
