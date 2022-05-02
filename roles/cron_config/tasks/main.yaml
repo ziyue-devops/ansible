@@ -9,18 +9,15 @@
 
 - name: config crontab 
   cron:
-    name:  
-    user:  
-    job:  
-    state: absent # not required. choices: absent;present. Whether to ensure the job or environment variable is present or absent.
-    cron_file:  # not required. If specified, uses this file instead of an individual user's crontab. If this is a relative path, it is interpreted with respect to I(/etc/cron.d). If it is absolute, it will typically be I(/etc/crontab). Many linux distros expect (and some require) the filename portion to consist solely of upper- and lower-case letters, digits, underscores, and hyphens. To use the C(cron_file) parameter you must specify the C(user) as well.
-    backup: False # not required. If set, create a backup of the crontab before it is modified. The location of the backup is returned in the C(backup_file) variable by this module.
+    name: "execue shell file"
+    job: /etc/ansible/demo/some.sh
+    state: present # not required. choices: absent;present. Whether to ensure the job or environment variable is present or absent.
     minute: 00 
     hour: 00 
     day: * 
     month: * 
     weekday: 7 
 
-  notify: #事件
-    - restart server
-    - check nginx
+  # notify: #事件
+  #   - restart server
+  #   - check nginx

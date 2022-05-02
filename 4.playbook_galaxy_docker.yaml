@@ -1,6 +1,6 @@
 #用来演示Docker模块的playbook脚本
 ---
-- name: galaxy docker 
+- name: galaxy docker demo
   remote_user: root
   hosts: test
   tasks:
@@ -9,38 +9,36 @@
       ping:
         data: pong 
 
-    - name: pull image nginx
+    - name: pull image 
       community.docker.docker_image:
-        name: nginx # required. Image name. Name format will be one of: name, repository/name, registry_server:port/name. When pushing or pulling an image the name can optionally include the tag by appending ':tag_name'. Note that image IDs (hashes) are not supported.
+        name: hello-world # required. Image name. Name format will be one of: name, repository/name, registry_server:port/name. When pushing or pulling an image the name can optionally include the tag by appending ':tag_name'. Note that image IDs (hashes) are not supported.
         source: pull # not required. choices: build;load;pull;local. Determines where the module will try to retrieve the image from. Use C(build) to build the image from a C(Dockerfile). I(build.path) must be specified when this value is used. Use C(load) to load the image from a C(.tar) file. I(load_path) must be specified when this value is used. Use C(pull) to pull the image from a registry. Use C(local) to make sure that the image is already available on the local docker daemon, i.e. do not try to build, pull or load the image. Before Ansible 2.12, the value of this option will be auto-detected to be backwards compatible, but a warning will be issued if it is not explicitly specified. From Ansible 2.12 on, auto-detection will be disabled and this option will be made mandatory.
         state: present # not required. choices: absent;present;build. Make assertions about the state of an image. When C(absent) an image will be removed. Use the force option to un-tag and remove all images matching the provided name. When C(present) check if an image exists using the provided name and tag. If the image is not found or the force option is used, the image will either be pulled, built or loaded, depending on the I(source) option. By default the image will be pulled from Docker Hub, or the registry specified in the image's name. Note that this will change in Ansible 2.12, so to make sure that you are pulling, set I(source) to C(pull). To build the image, provide a I(path) value set to a directory containing a context and Dockerfile, and set I(source) to C(build). To load an image, specify I(load_path) to provide a path to an archive file. To tag an image to a repository, provide a I(repository) path. If the name contains a repository path, it will be pushed. *Note:* C(state=build) is DEPRECATED and will be removed in Ansible 2.11. Specifying C(build) will behave the same as C(present).
-        tag: latest # not required. Used to select an image when pulling. Will be added to the image when pushing, tagging or building. Defaults to I(latest). If I(name) parameter format is I(name:tag), then tag value from I(name) will take precedence.
+        tag: linux # not required. Used to select an image when pulling. Will be added to the image when pushing, tagging or building. Defaults to I(latest). If I(name) parameter format is I(name:tag), then tag value from I(name) will take precedence.
 
   # 在远程服务器创建容器
     - name: run container
       community.docker.docker_container:
-        name: demo_nginx # required. Assign a name to a new container or match an existing container. When identifying an existing container name may be a name or a long or short container ID.
-        ports:
-          - "8080:80"
-        image: nginx:latest # not required. Repository path and tag used to create the container. If an image is not found or pull is true, the image will be pulled from the registry. If no tag is included, C(latest) will be used. Can also be an image ID. If this is the case, the image is assumed to be available locally. The I(pull) option is ignored for this case.
-        state: started # not required. choices: absent;present;stopped;started. C(absent) - A container matching the specified name will be stopped and removed. Use I(force_kill) to kill the container rather than stopping it. Use I(keep_volumes) to retain volumes associated with the removed container. C(present) - Asserts the existence of a container matching the name and any provided configuration parameters. If no container matches the name, a container will be created. If a container matches the name but the provided configuration does not match, the container will be updated, if it can be. If it cannot be updated, it will be removed and re-created with the requested config. C(started) - Asserts that the container is first C(present), and then if the container is not running moves it to a running state. Use I(restart) to force a matching container to be stopped and restarted. C(stopped) - Asserts that the container is first C(present), and then if the container is running moves it to a stopped state. To control what will be taken into account when comparing configuration, see the I(comparisons) option. To avoid that the image version will be taken into account, you can also use the I(ignore_image) option. Use the I(recreate) option to always force re-creation of a matching container, even if it is running. If the container should be killed instead of stopped in case it needs to be stopped for recreation, or because I(state) is C(stopped), please use the I(force_kill) option. Use I(keep_volumes) to retain volumes associated with a removed container. Use I(keep_volumes) to retain volumes associated with a removed container.
-        volumes:
+        name: demo_hello-world # required. Assign a name to a new container or match an existing container. When identifying an existing container name may be a name or a long or short container ID.
+        image: hello-world:linux # not required. Repository path and tag used to create the container. If an image is not found or pull is true, the image will be pulled from the registry. If no tag is included, C(latest) will be used. Can also be an image ID. If this is the case, the image is assumed to be available locally. The I(pull) option is ignored for this case.
+        #state: started # not required. choices: absent;present;stopped;started. C(absent) - A container matching the specified name will be stopped and removed. Use I(force_kill) to kill the container rather than stopping it. Use I(keep_volumes) to retain volumes associated with the removed container. C(present) - Asserts the existence of a container matching the name and any provided configuration parameters. If no container matches the name, a container will be created. If a container matches the name but the provided configuration does not match, the container will be updated, if it can be. If it cannot be updated, it will be removed and re-created with the requested config. C(started) - Asserts that the container is first C(present), and then if the container is not running moves it to a running state. Use I(restart) to force a matching container to be stopped and restarted. C(stopped) - Asserts that the container is first C(present), and then if the container is running moves it to a stopped state. To control what will be taken into account when comparing configuration, see the I(comparisons) option. To avoid that the image version will be taken into account, you can also use the I(ignore_image) option. Use the I(recreate) option to always force re-creation of a matching container, even if it is running. If the container should be killed instead of stopped in case it needs to be stopped for recreation, or because I(state) is C(stopped), please use the I(force_kill) option. Use I(keep_volumes) to retain volumes associated with a removed container. Use I(keep_volumes) to retain volumes associated with a removed container.
+        #volumes:
         #  - /etc/ansible/demo/nginx/nginx.conf:/etc/nginx/nginx.conf:rw
-          - /etc/ansible/demo/nginx/html:/usr/share/nginx/html:rw
+        #  - /etc/ansible/demo/nginx/html:/usr/share/nginx/html:rw
 
   # 在远程服务器docker_login
-    # - name:  login registry
-    #   community.docker.docker_login:
-    #     registry_url: http://harbor.ziyuenet.com.cn:5082 # registry_server:port/name not required. The registry URL.
-    #     username: harbor username  # not required. The username for the registry account. Required when I(state) is C(present).
-    #     password: harbor passsword # not required. The plaintext password for the registry account. Required when I(state) is C(present).
-    #     state: present # not required. choices: present;absent. This controls the current state of the user. C(present) will login in a user, C(absent) will log them out. To logout you only need the registry server, which defaults to DockerHub. Before 2.1 you could ONLY log in. Docker does not support 'logout' with a custom config file.
+    - name:  login registry
+      community.docker.docker_login:
+        registry_url: http://harbor.ziyuenet.com.cn:5082 # registry_server:port/name not required. The registry URL.
+        username:  # harbor username 
+        password:  # harbor passsword 
+        state: present # just do it
 
-    # - name: push nginx image to ziyue registry
-    #   community.docker.docker_image:
-    #     name: nginx
-    #     repository: harbor.ziyuenet.com.cn:5082/library/nginx
-    #     tag: latest
-    #     push: yes
-    #     source: local
+    - name: push image to ziyue registry
+      community.docker.docker_image:
+        name: hello-world
+        repository: harbor.ziyuenet.com.cn:5082/library/hello-world
+        tag: linux
+        push: yes
+        source: local
 

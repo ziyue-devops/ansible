@@ -2,4 +2,6 @@
 - hosts: test 
   remote_user: root
   roles:
+  #role列表依次执行
     - copy_file
+  #  - cron_config

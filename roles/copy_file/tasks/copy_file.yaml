@@ -1,6 +1,6 @@
 #复制文件到远程服务器      
 - name: copy file
   copy:
-    src: /etc/ansible/demo/foo2.conf      
+    src: foo2.conf      
     dest: /etc/ansible/demo/
     mode: '0600'
